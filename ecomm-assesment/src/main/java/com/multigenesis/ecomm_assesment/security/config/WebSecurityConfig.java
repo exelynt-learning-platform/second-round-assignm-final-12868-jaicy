@@ -25,10 +25,9 @@ import com.multigenesis.ecomm_assesment.security.jwt.AuthEntryPointJwt;
 import com.multigenesis.ecomm_assesment.security.jwt.AuthTokenFilter;
 import com.multigenesis.ecomm_assesment.security.services.UserDetailsServiceImpl;
 
-import jakarta.servlet.DispatcherType;
-
 @Configuration
 @EnableWebSecurity
+//@EnableMethodSecurity
 public class WebSecurityConfig {
 	
 	@Autowired
@@ -66,15 +65,13 @@ public class WebSecurityConfig {
 	                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 	                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	                .authorizeHttpRequests(auth ->
-	                        auth
-	                                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-	                                .requestMatchers("/api/auth/**").permitAll()
+	                        auth.requestMatchers("/api/auth/**").permitAll()
 	                                .requestMatchers("/v3/api-docs/**").permitAll()
-	                                .requestMatchers("/error").permitAll()  
+	                                .requestMatchers("/h2-console/**").permitAll()
 	                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 	                                .requestMatchers("/api/seller/**").hasAnyRole("ADMIN","SELLER")
-	                                //.requestMatchers("/api/admin/**").permitAll()
 	                                .requestMatchers("/api/public/**").permitAll()
+	                                .requestMatchers("/api/webhook/**").permitAll()
 	                                .requestMatchers("/swagger-ui/**").permitAll()
 	                                .requestMatchers("/api/test/**").permitAll()
 	                                .requestMatchers("/images/**").permitAll()

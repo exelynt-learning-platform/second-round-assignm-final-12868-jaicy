@@ -30,6 +30,8 @@ import com.multigenesis.ecomm_assesment.repositories.CartRepository;
 import com.multigenesis.ecomm_assesment.repositories.CategoryRepository;
 import com.multigenesis.ecomm_assesment.repositories.ProductRepository;
 import com.multigenesis.ecomm_assesment.utils.AuthUtil;
+import org.springframework.web.util.UriComponentsBuilder;
+
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -63,33 +65,59 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
+
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        boolean isProductNotPresent = true;
+        validateProduct(productDTO);
+        validateDuplicateProduct(category, productDTO.getProductName());
 
-        List<Product> products = category.getProducts();
-        for (Product value : products) {
-            if (value.getProductName().equals(productDTO.getProductName())) {
-                isProductNotPresent = false;
-                break;
-            }
+        Product product = modelMapper.map(productDTO, Product.class);
+        product.setImage("default.png");
+        product.setCategory(category);
+        product.setUser(authUtil.loggedInUser());
+
+        product.setSpecialPrice(calculateSpecialPrice(product.getPrice(), product.getDiscount()));
+
+        Product savedProduct = productRepository.save(product);
+
+        return modelMapper.map(savedProduct, ProductDTO.class);
+    }
+    
+    private void validateProduct(ProductDTO productDTO) {
+
+        if (productDTO.getProductName() == null || productDTO.getProductName().trim().isEmpty()) {
+            throw new APIException("Product name must not be empty");
         }
 
-        if (isProductNotPresent) {
-            Product product = modelMapper.map(productDTO, Product.class);
-            product.setImage("default.png");
-            product.setCategory(category);
-            product.setUser(authUtil.loggedInUser());
-            double specialPrice = product.getPrice() -
-                    ((product.getDiscount() * 0.01) * product.getPrice());
-            product.setSpecialPrice(specialPrice);
-            Product savedProduct = productRepository.save(product);
-            return modelMapper.map(savedProduct, ProductDTO.class);
-        } else {
-            throw new APIException("Product already exist!!");
+        if (productDTO.getPrice() == null || productDTO.getPrice() < 0) {
+            throw new APIException("Price must be greater than or equal to 0");
         }
+
+        if (productDTO.getDiscount() == null ||
+                productDTO.getDiscount() < 0 ||
+                productDTO.getDiscount() > 100) {
+            throw new APIException("Discount must be between 0 and 100");
+        }
+    }
+    private void validateDuplicateProduct(Category category, String productName) {
+
+        boolean exists = category.getProducts().stream()
+                .anyMatch(p -> p.getProductName().equalsIgnoreCase(productName));
+
+        if (exists) {
+            throw new APIException("Product already exists!!");
+        }
+    }
+    
+    private double calculateSpecialPrice(Double price, Double discount) {
+
+        if (price == null || discount == null) {
+            throw new APIException("Price and discount must not be null");
+        }
+
+        return price - ((discount / 100.0) * price);
     }
 
     @Override
@@ -194,7 +222,10 @@ public class ProductServiceImpl implements ProductService{
     }
 
     private String constructImageUrl(String imageName) {
-        return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
+        return UriComponentsBuilder
+                .fromHttpUrl(imageBaseUrl)
+                .pathSegment(imageName)
+                .toUriString();
     }
 
     @Override

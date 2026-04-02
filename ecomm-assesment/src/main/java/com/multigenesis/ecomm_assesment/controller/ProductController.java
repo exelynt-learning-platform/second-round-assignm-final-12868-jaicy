@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.multigenesis.ecomm_assesment.config.PaginationSortingConstants;
+import com.multigenesis.ecomm_assesment.config.AppConstants;
 import com.multigenesis.ecomm_assesment.payload.ProductDTO;
 import com.multigenesis.ecomm_assesment.payload.ProductResponse;
 import com.multigenesis.ecomm_assesment.service.ProductService;
@@ -49,10 +49,10 @@ public class ProductController {
     public ResponseEntity<ProductResponse> getAllProducts(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "category", required = false) String category,
-            @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder
     ){
         ProductResponse productResponse = productService.getAllProducts(pageNumber, pageSize, sortBy, sortOrder, keyword, category);
         return new ResponseEntity<>(productResponse,HttpStatus.OK);
@@ -60,20 +60,20 @@ public class ProductController {
 
     @GetMapping("/public/categories/{categoryId}/products")
     public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId,
-                                                                 @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-                                                                 @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                                                 @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-                                                                 @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder){
+                                                                 @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                 @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                 @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+                                                                 @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder){
         ProductResponse productResponse = productService.searchByCategory(categoryId, pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
     @GetMapping("/public/products/keyword/{keyword}")
     public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword,
-                                                                @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-                                                                @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                                                @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-                                                                @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder){
+                                                                @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+                                                                @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder){
         ProductResponse productResponse = productService.searchProductByKeyword(keyword, pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse, HttpStatus.FOUND);
     }
@@ -101,10 +101,10 @@ public class ProductController {
 
     @GetMapping("/admin/products")
     public ResponseEntity<ProductResponse> getAllProductsForAdmin(
-            @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder
     ){
         ProductResponse productResponse = productService.getAllProductsForAdmin(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse,HttpStatus.OK);
@@ -113,10 +113,10 @@ public class ProductController {
 
     @GetMapping("/seller/products")
     public ResponseEntity<ProductResponse> getAllProductsForSeller(
-            @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder
     ){
         ProductResponse productResponse = productService.getAllProductsForSeller(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse,HttpStatus.OK);
