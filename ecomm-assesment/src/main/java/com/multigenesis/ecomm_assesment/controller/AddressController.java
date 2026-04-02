@@ -26,34 +26,31 @@ import jakarta.validation.Valid;
 public class AddressController {
 	
 	@Autowired
-    private AuthUtil authUtil;
+    AuthUtil authUtil;
 
     @Autowired
-    private AddressService addressService;
+    AddressService addressService;
 
-    //create address
-    @PostMapping("/address")
+    @PostMapping("/addresses")
     public ResponseEntity<AddressDTO> createAddress(@Valid @RequestBody AddressDTO addressDTO){
         User user = authUtil.loggedInUser();
         AddressDTO savedAddressDTO = addressService.createAddress(addressDTO, user);
         return new ResponseEntity<>(savedAddressDTO, HttpStatus.CREATED);
     }
 
-    //Get all Address
-    @GetMapping("/address")
+    @GetMapping("/addresses")
     public ResponseEntity<List<AddressDTO>> getAddresses(){
         List<AddressDTO> addressList = addressService.getAddresses();
         return new ResponseEntity<>(addressList, HttpStatus.OK);
     }
-    
-    //Get address by address Id
-    @GetMapping("/address/{addressId}")
+
+    @GetMapping("/addresses/{addressId}")
     public ResponseEntity<AddressDTO> getAddressById(@PathVariable Long addressId){
         AddressDTO addressDTO = addressService.getAddressesById(addressId);
         return new ResponseEntity<>(addressDTO, HttpStatus.OK);
     }
 
-   //get logged in user's all address
+
     @GetMapping("/users/addresses")
     public ResponseEntity<List<AddressDTO>> getUserAddresses(){
         User user = authUtil.loggedInUser();
@@ -61,16 +58,15 @@ public class AddressController {
         return new ResponseEntity<>(addressList, HttpStatus.OK);
     }
 
-    //update address
-    @PutMapping("/address/{addressId}")
+    @PutMapping("/addresses/{addressId}")
     public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addressId
-            , @RequestBody AddressDTO addressDTO){
+            ,@Valid @RequestBody AddressDTO addressDTO){
         AddressDTO updatedAddress = addressService.updateAddress(addressId, addressDTO);
         return new ResponseEntity<>(updatedAddress, HttpStatus.OK);
     }
-    //delete address by id
-    @DeleteMapping("/address/{addressId}")
-    public ResponseEntity<String> deleteAddress(@PathVariable Long addressId){
+
+    @DeleteMapping("/addresses/{addressId}")
+    public ResponseEntity<String> updateAddress(@PathVariable Long addressId){
         String status = addressService.deleteAddress(addressId);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }

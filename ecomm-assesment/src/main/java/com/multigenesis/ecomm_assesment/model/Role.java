@@ -9,14 +9,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
+
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name="roles")
 public class Role {
 	
@@ -24,7 +26,6 @@ public class Role {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer roleId;
 	
-	@ToString.Exclude
 	@Enumerated(EnumType.STRING)
 	@Column(length=20,name="role_name")
 	private AppRole roleName;

@@ -59,6 +59,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthenticationResult login(LoginRequest loginRequest) {
+    	  if (loginRequest == null) {
+    	      throw new IllegalArgumentException("Login request cannot be null");
+    	  }
+
+    	 if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+    	        throw new IllegalArgumentException("Username and password must not be null");
+    	}
         Authentication authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -80,6 +87,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<MessageResponse> register(SignupRequest signUpRequest) {
+    	if (signUpRequest == null) {
+            throw new IllegalArgumentException("Signup request cannot be null");
+        }
+
+        if (signUpRequest.getUsername() == null || signUpRequest.getUsername().isBlank()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Username is required"));
+        }
+
+        if (signUpRequest.getEmail() == null || signUpRequest.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Email is required"));
+        }
+
+        if (signUpRequest.getPassword() == null || signUpRequest.getPassword().isBlank()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Password is required"));
+        }
+
         if (userRepository.existsByUserName(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -96,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
 
-        if (strRoles == null) {
+        if (strRoles == null|| strRoles.isEmpty()) {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
@@ -130,6 +153,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserInfoResponse getCurrentUserDetails(Authentication authentication) {
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new IllegalStateException("No authenticated user found");
+        }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         List<String> roles = userDetails.getAuthorities().stream()
@@ -149,6 +176,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse getAllSellers(Pageable pageable) {
+
+        if (pageable == null) {
+            throw new IllegalArgumentException("Pageable must not be null");
+        }
+
         Page<User> allUsers = userRepository.findByRoleName(AppRole.ROLE_SELLER, pageable);
         List<UserDTO> userDtos = allUsers.getContent()
                 .stream()

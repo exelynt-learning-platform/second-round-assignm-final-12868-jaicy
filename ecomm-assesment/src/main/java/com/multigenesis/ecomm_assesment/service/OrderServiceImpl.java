@@ -63,69 +63,168 @@ public class OrderServiceImpl implements OrderService {
 
 	    @Autowired
 	    AuthUtil authUtil;
-
+//
+//	    @Override
+//	    @Transactional
+//	    public OrderDTO placeOrder(String emailId, Long addressId, String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage) {
+//	        Cart cart = cartRepository.findCartByEmail(emailId);
+//	        if (cart == null) {
+//	            throw new ResourceNotFoundException("Cart", "email", emailId);
+//	        }
+//
+//	        Address address = addressRepository.findById(addressId)
+//	                .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
+//
+//	        Order order = new Order();
+//	        order.setEmail(emailId);
+//	        order.setOrderDate(LocalDate.now());
+//	        order.setTotalAmount(cart.getTotalPrice());
+//	        order.setOrderStatus("Accepted");
+//	        order.setAddress(address);
+//
+//	        Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
+//	        payment.setOrder(order);
+//	        payment = paymentRepository.save(payment);
+//	        order.setPayment(payment);
+//
+//	        Order savedOrder = orderRepository.save(order);
+//
+//	        List<CartItem> cartItems = cart.getCartItems();
+//	        if (cartItems.isEmpty()) {
+//	            throw new APIException("Cart is empty");
+//	        }
+//
+//	        List<OrderItem> orderItems = new ArrayList<>();
+//	        for (CartItem cartItem : cartItems) {
+//	            OrderItem orderItem = new OrderItem();
+//	            orderItem.setProduct(cartItem.getProduct());
+//	            orderItem.setQuantity(cartItem.getQuantity());
+//	            orderItem.setDiscount(cartItem.getDiscount());
+//	            orderItem.setOrderedProductPrice(cartItem.getProductPrice());
+//	            orderItem.setOrder(savedOrder);
+//	            orderItems.add(orderItem);
+//	        }
+//
+//	        orderItems = orderItemRepository.saveAll(orderItems);
+//
+//	        cart.getCartItems().forEach(item -> {
+//	            int quantity = item.getQuantity();
+//	            Product product = item.getProduct();
+//
+//	            // Reduce stock quantity
+//	            product.setQuantity(product.getQuantity() - quantity);
+//
+//	            // Save product back to the database
+//	            productRepository.save(product);
+//
+//	            // Remove items from cart
+//	            cartService.deleteProductFromCart(cart.getCartId(), item.getProduct().getProductId());
+//	        });
+//
+//	        OrderDTO orderDTO = modelMapper.map(savedOrder, OrderDTO.class);
+//	        orderItems.forEach(item -> orderDTO.getOrderItems().add(modelMapper.map(item, OrderItemDTO.class)));
+//
+//	        orderDTO.setAddressId(addressId);
+//
+//	        return orderDTO;
+//	    }
+	    
 	    @Override
 	    @Transactional
-	    public OrderDTO placeOrder(String emailId, Long addressId, String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage) {
+	    public OrderDTO placeOrder(String emailId, Long addressId, String paymentMethod,
+	                               String pgName, String pgPaymentId,
+	                               String pgStatus, String pgResponseMessage) {
+
+	        Cart cart = getCartByEmail(emailId);
+	        Address address = getAddressById(addressId);
+
+	        Order order = createOrder(emailId, cart, address);
+	        Payment payment = createAndSavePayment(order, paymentMethod, pgName, pgPaymentId, pgStatus, pgResponseMessage);
+
+	        order.setPayment(payment);
+	        Order savedOrder = orderRepository.save(order);
+
+	        List<OrderItem> orderItems = createOrderItems(cart, savedOrder);
+
+	        updateStockAndClearCart(cart);
+
+	        return buildOrderDTO(savedOrder, orderItems, addressId);
+	    }
+	    
+	    private Cart getCartByEmail(String emailId) {
 	        Cart cart = cartRepository.findCartByEmail(emailId);
 	        if (cart == null) {
 	            throw new ResourceNotFoundException("Cart", "email", emailId);
 	        }
-
-	        Address address = addressRepository.findById(addressId)
+	        if (cart.getCartItems().isEmpty()) {
+	            throw new APIException("Cart is empty");
+	        }
+	        return cart;
+	    }
+	    
+	    private Address getAddressById(Long addressId) {
+	        return addressRepository.findById(addressId)
 	                .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
-
+	    }
+	    
+	    private Order createOrder(String emailId, Cart cart, Address address) {
 	        Order order = new Order();
 	        order.setEmail(emailId);
 	        order.setOrderDate(LocalDate.now());
 	        order.setTotalAmount(cart.getTotalPrice());
 	        order.setOrderStatus("Accepted");
 	        order.setAddress(address);
+	        return order;
+	    }
+	    
+	    private Payment createAndSavePayment(Order order, String paymentMethod,
+                String pgName, String pgPaymentId,
+                String pgStatus, String pgResponseMessage) {
 
-	        Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
-	        payment.setOrder(order);
-	        payment = paymentRepository.save(payment);
-	        order.setPayment(payment);
-
-	        Order savedOrder = orderRepository.save(order);
-
-	        List<CartItem> cartItems = cart.getCartItems();
-	        if (cartItems.isEmpty()) {
-	            throw new APIException("Cart is empty");
-	        }
-
+		Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
+		payment.setOrder(order);
+		return paymentRepository.save(payment);
+		}
+	    private List<OrderItem> createOrderItems(Cart cart, Order order) {
 	        List<OrderItem> orderItems = new ArrayList<>();
-	        for (CartItem cartItem : cartItems) {
+
+	        for (CartItem cartItem : cart.getCartItems()) {
 	            OrderItem orderItem = new OrderItem();
 	            orderItem.setProduct(cartItem.getProduct());
 	            orderItem.setQuantity(cartItem.getQuantity());
 	            orderItem.setDiscount(cartItem.getDiscount());
 	            orderItem.setOrderedProductPrice(cartItem.getProductPrice());
-	            orderItem.setOrder(savedOrder);
+	            orderItem.setOrder(order);
 	            orderItems.add(orderItem);
 	        }
 
-	        orderItems = orderItemRepository.saveAll(orderItems);
-
-	        cart.getCartItems().forEach(item -> {
-	            int quantity = item.getQuantity();
+	        return orderItemRepository.saveAll(orderItems);
+	    }
+	    
+	    private void updateStockAndClearCart(Cart cart) {
+	        for (CartItem item : cart.getCartItems()) {
 	            Product product = item.getProduct();
+	            int quantity = item.getQuantity();
+	            if (product.getQuantity() < quantity||product.getQuantity()==null) {
+	                throw new APIException("Insufficient stock for product: " + product.getProductName());
+	            }
 
-	            // Reduce stock quantity
 	            product.setQuantity(product.getQuantity() - quantity);
-
-	            // Save product back to the database
 	            productRepository.save(product);
 
-	            // Remove items from cart
-	            cartService.deleteProductFromCart(cart.getCartId(), item.getProduct().getProductId());
-	        });
+	            cartService.deleteProductFromCart(cart.getCartId(), product.getProductId());
+	        }
+	    }
+	    
+	    
+	    private OrderDTO buildOrderDTO(Order order, List<OrderItem> orderItems, Long addressId) {
+	        OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
 
-	        OrderDTO orderDTO = modelMapper.map(savedOrder, OrderDTO.class);
-	        orderItems.forEach(item -> orderDTO.getOrderItems().add(modelMapper.map(item, OrderItemDTO.class)));
+	        orderItems.forEach(item ->
+	                orderDTO.getOrderItems().add(modelMapper.map(item, OrderItemDTO.class))
+	        );
 
 	        orderDTO.setAddressId(addressId);
-
 	        return orderDTO;
 	    }
 

@@ -22,14 +22,18 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@ToString(exclude = {"addresses", "roles", "cart", "products"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(
 	    name = "users",
 	    uniqueConstraints = {
@@ -82,14 +86,14 @@ public class User {
 	@OneToMany(mappedBy="user", cascade= {CascadeType.PERSIST, CascadeType.MERGE})
 	private List<Address> addresses=new ArrayList<>();
 	
-	@ToString.Exclude
+
 	@OneToOne(mappedBy="user",cascade= {
 			CascadeType.PERSIST,CascadeType.MERGE,
 			CascadeType.REMOVE},orphanRemoval=true
 	)
 	private Cart cart;
 	
-	@ToString.Exclude
+
 	@OneToMany(mappedBy="user",
 			cascade= {CascadeType.PERSIST,CascadeType.MERGE},
 			orphanRemoval = true)

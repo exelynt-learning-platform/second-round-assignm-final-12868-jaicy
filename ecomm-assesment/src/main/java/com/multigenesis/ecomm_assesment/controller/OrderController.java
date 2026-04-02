@@ -1,6 +1,6 @@
 package com.multigenesis.ecomm_assesment.controller;
 
-import com.multigenesis.ecomm_assesment.config.PaginationSortingConstants;
+import com.multigenesis.ecomm_assesment.config.AppConstants;
 import com.multigenesis.ecomm_assesment.payload.OrderDTO;
 import com.multigenesis.ecomm_assesment.payload.OrderRequestDTO;
 import com.multigenesis.ecomm_assesment.payload.OrderResponse;
@@ -55,10 +55,10 @@ public class OrderController {
 
     @GetMapping("/admin/orders")
     public ResponseEntity<OrderResponse> getAllOrders(
-            @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_ORDERS_BY, required = false) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_ORDERS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder
     ) {
         OrderResponse orderResponse = orderService.getAllOrders(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<OrderResponse>(orderResponse, HttpStatus.OK);
@@ -66,10 +66,10 @@ public class OrderController {
 
     @GetMapping("/seller/orders")
     public ResponseEntity<OrderResponse> getAllSellerOrders(
-            @RequestParam(name = "pageNumber", defaultValue = PaginationSortingConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = PaginationSortingConstants.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sortBy", defaultValue = PaginationSortingConstants.SORT_ORDERS_BY, required = false) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = PaginationSortingConstants.SORT_DIRECTION, required = false) String sortOrder
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_ORDERS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIRECTION, required = false) String sortOrder
     ) {
         OrderResponse orderResponse = orderService.getAllSellerOrders(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<OrderResponse>(orderResponse, HttpStatus.OK);

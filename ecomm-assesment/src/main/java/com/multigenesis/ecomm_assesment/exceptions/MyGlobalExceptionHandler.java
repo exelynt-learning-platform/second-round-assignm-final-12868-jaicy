@@ -9,7 +9,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.multigenesis.ecomm_assesment.payload.APIResponse;
 
@@ -40,28 +39,5 @@ public class MyGlobalExceptionHandler {
 		APIResponse apiResponse=new APIResponse(message,false);
 		return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
 	}
-	
-	@ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<String> handleMaxSizeException(MaxUploadSizeExceededException exc) {
-        return ResponseEntity
-                .status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body("File size exceeds limit!");
-    }
-	
-	 @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-	    public ResponseEntity<Map<String, String>> handleConstraintViolation(
-	            jakarta.validation.ConstraintViolationException ex) {
-
-	        Map<String, String> errors = new HashMap<>();
-
-	        ex.getConstraintViolations().forEach(error -> {
-	            String field = error.getPropertyPath().toString();
-	            String message = error.getMessage();
-	            errors.put(field, message);
-	        });
-
-	        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-	    }
-
 
 }

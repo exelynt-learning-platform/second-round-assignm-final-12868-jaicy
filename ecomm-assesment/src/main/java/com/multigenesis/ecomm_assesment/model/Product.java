@@ -16,12 +16,14 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="products")
@@ -39,9 +41,7 @@ public class Product {
 	    @NotBlank
 	    @Size(min = 6, message = "Product description must contain atleast 6 characters")
 	    private String description;
-	    @NotBlank
 	    private Integer quantity;
-	    @NotBlank
 	    private double price;
 	    private double discount;
 	    private double specialPrice;

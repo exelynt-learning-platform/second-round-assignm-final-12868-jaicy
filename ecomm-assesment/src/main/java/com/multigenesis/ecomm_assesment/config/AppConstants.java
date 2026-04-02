@@ -1,6 +1,6 @@
 package com.multigenesis.ecomm_assesment.config;
 
-public class PaginationSortingConstants {
+public class AppConstants {
 	
 	public static final String PAGE_NUMBER="0";
 	public static final String PAGE_SIZE="50";

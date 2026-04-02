@@ -9,12 +9,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="cart_items")
@@ -33,10 +37,12 @@ public class CartItem {
 	@JoinColumn(name="product_id")
 	private Product product;
 	
+	@NotNull
 	private Integer quantity;
 	
 	private Double discount;
 	
+	@NotNull
 	private double productPrice;
 
 }

@@ -34,6 +34,7 @@ public class JwtUtils {
     @Value("${spring.app.jwtCookieName}")
     private String jwtCookie;
 
+    private static final int ONE_DAY_IN_SECONDS = 86400;
     
     public String getJwtFromCookies(HttpServletRequest request) {
     	Cookie cookie=WebUtils.getCookie(request, jwtCookie);
@@ -48,7 +49,7 @@ public class JwtUtils {
     	String jwt=generateTokenFromUsername(userPrincipal.getUsername());
     	ResponseCookie cookie=ResponseCookie.from(jwtCookie,jwt)
     			.path("/api")
-    			.maxAge(24*60*60)
+    			.maxAge(ONE_DAY_IN_SECONDS)
     			.httpOnly(false)
     			.build();
     	return cookie;
